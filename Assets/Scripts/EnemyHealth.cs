@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour
 {
-    public int maxHealth = 3;
+    public int maxHealth = 2;
     private int currentHealth;
 
     void Start()
@@ -12,18 +13,17 @@ public class PlayerHealth : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("EnemyBullet"))
+        if (collision.CompareTag("PlayerBullet"))
         {
             TakeDamage(1);
             Destroy(collision.gameObject); // Destroy the bullet on hit
-            Debug.Log("You've been hit");
         }
     }
 
-    public void TakeDamage(int damage) // Make this method public
+    void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log("Player Health: " + currentHealth);
+        Debug.Log("Enemy Health: " + currentHealth);
 
         if (currentHealth <= 0)
         {
@@ -33,7 +33,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Player has died!");
-        gameObject.SetActive(false); // Temporarily disables player (for testing)
+        Debug.Log("Enemy has died!");
+        Destroy(gameObject);
     }
 }

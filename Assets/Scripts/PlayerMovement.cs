@@ -1,14 +1,19 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
     public float jumpForce = 10f;
-    public GameObject bulletPrefab; // Assign the bullet prefab in the Inspector
-    public Transform firePoint; // Assign a transform where bullets should spawn
+    public GameObject entrancePortalPrefab; // Blue Portal
+    public GameObject exitPortalPrefab; // Orange Portal
+    public Transform firePoint;
     public float bulletSpeed = 10f;
 
     private Rigidbody2D rb;
+    private GameObject entrancePortal, exitPortal;
+    public GameObject pauseMenuUI;
+    public static bool GameIsPaused = false;
 
     void Start()
     {
@@ -17,32 +22,30 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        Move();
-        Jump();
-        Shoot();
-    }
-
-    void Move()
-    {
-        float move = Input.GetAxis("Horizontal");
-        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
-    }
-
-    void Jump()
-    {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            if (GameIsPaused)
+            {
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
+            }
         }
     }
 
-    void Shoot()
+    public void ResumeGame()
     {
-        if (Input.GetButtonDown("Fire1")) // Default is Left Mouse Button or Ctrl
-        {
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-            Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
-            bulletRb.linearVelocity = new Vector2(bulletSpeed * transform.localScale.x, 0f);
-        }
+        pauseMenuUI.SetActive(false);
+        Time.timeScale = 1f;
+        GameIsPaused = false;
+    }
+
+    public void PauseGame()
+    {
+        pauseMenuUI.SetActive(true);
+        Time.timeScale = 0f;
+        GameIsPaused = true;
     }
 }

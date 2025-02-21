@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BulletBehavior : MonoBehaviour
 {
-    public float lifeTime = 2f; // Time before bullet gets destroyed
+    public float lifeTime = 2f;
 
     void Start()
     {
@@ -11,15 +11,19 @@ public class BulletBehavior : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        // Add logic for hitting enemies or objects
         if (collision.CompareTag("Enemy"))
         {
-            Destroy(collision.gameObject); // Destroy enemy
-            Destroy(gameObject); // Destroy bullet
+            collision.GetComponent<EnemyHealth>();
+            Destroy(gameObject);
         }
-        else if (!collision.CompareTag("Player")) // Prevent bullet from destroying player
+        else if (collision.CompareTag("Player"))
         {
-            Destroy(gameObject); // Destroy bullet on impact with other objects
+            collision.GetComponent<PlayerHealth>()?.TakeDamage(1);
+            Destroy(gameObject);
+        }
+        else if (!collision.CompareTag("Bullet"))
+        {
+            Destroy(gameObject);
         }
     }
 }
