@@ -34,8 +34,12 @@ public class EnemyAI : MonoBehaviour
         {
             direction *= -1;
             transform.localScale = new Vector3(direction, 1, 1);
+
+            // Flip the fire point to match new direction
+            firePoint.localPosition = new Vector3(Mathf.Abs(firePoint.localPosition.x) * direction, firePoint.localPosition.y, 0);
         }
     }
+
 
     void DetectAndShoot()
     {
@@ -53,8 +57,10 @@ public class EnemyAI : MonoBehaviour
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
         Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
-        float bulletDirection = (player.position.x > transform.position.x) ? 1f : -1f;
-        bulletRb.linearVelocity = new Vector2(bulletSpeed * bulletDirection, 0f);
-        bullet.tag = "EnemyBullet"; // Ensure bullets are tagged properly
+
+        // Fire in the enemy's moving direction
+        bulletRb.linearVelocity = new Vector2(bulletSpeed * direction, 0f);
+        bullet.tag = "EnemyBullet";
     }
+
 }
