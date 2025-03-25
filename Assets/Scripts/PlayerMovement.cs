@@ -36,8 +36,17 @@ public class PlayerController : MonoBehaviour
     void Move()
     {
         float move = Input.GetAxis("Horizontal");
-        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+        float currentSpeed = speed;
+
+        // Check if the run button (Left Shift) is held down
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            currentSpeed *= 1.5f; // Increase speed by 50%
+        }
+
+        rb.linearVelocity = new Vector2(move * currentSpeed, rb.linearVelocity.y);
     }
+
 
     void Jump()
     {

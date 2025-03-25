@@ -18,7 +18,22 @@ public class PlayerHealth : MonoBehaviour
             Destroy(collision.gameObject); // Destroy the bullet on hit
             Debug.Log("You've been hit");
         }
+
+        if (collision.CompareTag("EnemyBomb"))
+        {
+            TakeDamage(1);
+            Destroy(collision.gameObject); // Destroy the bullet on hit
+            Debug.Log("You've been hit");
+        }
     }
+
+    public void Heal(int amount)
+    {
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        Debug.Log("Player healed! Current Health: " + currentHealth);
+    }
+
+
 
     public void TakeDamage(int damage) // Make this method public
     {
