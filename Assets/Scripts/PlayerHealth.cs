@@ -1,8 +1,9 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int maxHealth = 3;
+    public int maxHealth = 30;
     private int currentHealth;
 
     void Start()
@@ -49,6 +50,12 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Player has died!");
-        gameObject.SetActive(false); // Temporarily disables player (for testing)
+        SceneManager.LoadScene("MainMenu"); // Load the Main Menu scene
     }
+
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
 }

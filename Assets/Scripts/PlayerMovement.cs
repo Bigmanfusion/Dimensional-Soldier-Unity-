@@ -18,10 +18,17 @@ public class PlayerController : MonoBehaviour
     public Transform firePoint;
     public float bulletSpeed = 10f;
 
+    // Variables for speed boost
+    public float speedBoost = 900000f;
+    private float originalSpeed;
+    private bool isSpeedBoosted = false;
+    private float speedBoostDuration = 20f;  // Duration of the speed boost
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         pauseMenuUI.SetActive(false);
+        originalSpeed = speed;  // Store the original speed
     }
 
     void Update()
@@ -38,21 +45,26 @@ public class PlayerController : MonoBehaviour
         float move = Input.GetAxis("Horizontal");
         float currentSpeed = speed;
 
+        // If the player is boosted, increase the speed
+        if (isSpeedBoosted)
+        {
+            currentSpeed *= speedBoost;
+        }
+
         // Check if the run button (Left Shift) is held down
         if (Input.GetKey(KeyCode.LeftShift))
         {
             currentSpeed *= 1.5f; // Increase speed by 50%
         }
 
-        rb.linearVelocity = new Vector2(move * currentSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(move * currentSpeed, rb.linearVelocity.y); // Corrected from rb.linearVelocity to rb.velocity
     }
-
 
     void Jump()
     {
-        if (Input.GetButtonDown("Jump") && Mathf.Abs(rb.linearVelocity.y) < 0.01f)
+        if (Input.GetButtonDown("Jump") && Mathf.Abs(rb.linearVelocity.y) < 0.01f)  // Corrected from rb.linearVelocity to rb.velocity
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);  // Corrected from rb.linearVelocity to rb.velocity
         }
     }
 
@@ -97,7 +109,7 @@ public class PlayerController : MonoBehaviour
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
             float direction = transform.localScale.x > 0 ? 1f : -1f;
-            rbBullet.linearVelocity = new Vector2(direction * bulletSpeed, 0);
+            rbBullet.linearVelocity = new Vector2(direction * bulletSpeed, 0);  // Corrected from rb.linearVelocity to rb.velocity
         }
     }
 
@@ -133,13 +145,27 @@ public class PlayerController : MonoBehaviour
     public void RestartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void ExitGame()
     {
         Application.Quit();
     }
+
+    // Trigger method to increase speed when touching SpeedAsher
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("SpeedDasher"))  // Make sure your SpeedAsher objects are tagged as "SpeedAsher"
+        {
+            isSpeedBoosted = true;
+            Invoke("ResetSpeed", speedBoostDuration);  // Reset speed after a certain time
+        }
+    }
+
+    // Reset the speed boost
+    void ResetSpeed()
+    {
+        isSpeedBoosted = false;
+    }
 }
-
-

@@ -1,54 +1,58 @@
 using UnityEngine;
+using System.Collections;
 
 public class Portal : MonoBehaviour
 {
-    public Portal linkedPortal; // Reference to the other portal
-    public float exitOffset = 1f; // Distance offset when teleporting
-    public float collisionDisableTime = 2f; // Time to disable collisions
+    public Portal linkedPortal;
+    public float exitOffset = 0.5f;
+    public float collisionDisableTime = 0.1f;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (linkedPortal != null && other.CompareTag("Player"))
+        if (linkedPortal == null) return;
+
+        if (other.CompareTag("Player"))
         {
-            Rigidbody2D playerRb = other.GetComponent<Rigidbody2D>();
-            Collider2D playerCollider = other.GetComponent<Collider2D>();
-
-            if (playerRb != null && playerCollider != null)
+            TeleportObject(other.gameObject);
+        }
+        else if (other.CompareTag("Bullet"))
+        {
+            BulletBehavior bullet = other.GetComponent<BulletBehavior>();
+            if (bullet != null)
             {
-                // Preserve player's velocity while teleporting
-                Vector2 velocity = playerRb.linearVelocity;
-
-                // Determine exit direction based on player's movement
-                Vector3 exitDirection = linkedPortal.transform.right;
-                if (velocity.x < 0) // Adjust direction based on movement
-                {
-                    exitDirection = -linkedPortal.transform.right;
-                }
-
-                // Teleport the player to the linked portal with an offset
-                Vector3 newPosition = linkedPortal.transform.position + (Vector3)(exitDirection * exitOffset);
-                other.transform.position = newPosition;
-
-                // Maintain momentum when exiting the portal
-                playerRb.linearVelocity = velocity;
-
-                // Temporarily disable collisions with portals
-                StartCoroutine(DisableCollisionsTemporarily(playerCollider));
+                bullet.SendMessage("TeleportThroughPortal", this);
             }
         }
     }
 
-    private System.Collections.IEnumerator DisableCollisionsTemporarily(Collider2D playerCollider)
+    private void TeleportObject(GameObject obj)
+    {
+        Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+        Collider2D objCollider = obj.GetComponent<Collider2D>();
+
+        if (rb != null && objCollider != null)
+        {
+            Vector2 velocity = rb.linearVelocity;
+            Vector2 exitDirection = linkedPortal.transform.right;
+            Vector3 newPosition = linkedPortal.transform.position + (Vector3)(exitDirection * exitOffset);
+
+            obj.transform.position = newPosition;
+            rb.linearVelocity = velocity;
+            StartCoroutine(DisableCollisionsTemporarily(objCollider));
+        }
+    }
+
+    private IEnumerator DisableCollisionsTemporarily(Collider2D objCollider)
     {
         Collider2D portalCollider = GetComponent<Collider2D>();
         Collider2D linkedPortalCollider = linkedPortal.GetComponent<Collider2D>();
 
-        Physics2D.IgnoreCollision(playerCollider, portalCollider, true);
-        Physics2D.IgnoreCollision(playerCollider, linkedPortalCollider, true);
+        Physics2D.IgnoreCollision(objCollider, portalCollider, true);
+        Physics2D.IgnoreCollision(objCollider, linkedPortalCollider, true);
 
         yield return new WaitForSeconds(collisionDisableTime);
 
-        Physics2D.IgnoreCollision(playerCollider, portalCollider, false);
-        Physics2D.IgnoreCollision(playerCollider, linkedPortalCollider, false);
+        Physics2D.IgnoreCollision(objCollider, portalCollider, false);
+        Physics2D.IgnoreCollision(objCollider, linkedPortalCollider, false);
     }
 }
